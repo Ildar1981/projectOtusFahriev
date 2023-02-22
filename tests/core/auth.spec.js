@@ -8,16 +8,14 @@ import {
   _usernameAdmin,
 } from '../../const'
 
-const PORT = 3000
-
 test.describe(`Админ`, () => {
   test(`Авторизация успешная`, async ({ page }) => {
-    await auth(page, `${_baseURL}:${PORT}`, _loginAdmin, _passwordAdmin)
+    await auth(page, _baseURL, _loginAdmin, _passwordAdmin)
     await expect(page.locator(`.info-user div`)).toContainText(_usernameAdmin)
   })
 
   test(`Авторизация неудачная`, async ({ page }) => {
-    await auth(page, `${_baseURL}:${PORT}`, _loginAdmin, _passwordAdminWrong)
+    await auth(page, _baseURL, _loginAdmin, _passwordAdminWrong)
     await expect(page.getByRole(`alert`)).toContainText(`Ошибка авторизации`)
   })
 })
