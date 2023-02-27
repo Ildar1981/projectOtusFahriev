@@ -1,6 +1,7 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
-import { authAdmin, openLab } from '../../functions'
+import { authAdmin } from '../../functions'
+import { openLab } from './functions'
 import { _baseURL, _loginAdmin, _passwordAdmin } from '../../const'
 
 test(`Подписание направления`, async ({ page }) => {
