@@ -13,9 +13,9 @@
           ansible.builtin.shell: |
             cd ..
             npm install
+            npx playwright install
             npm run test:core
-        #     npx playwright install
-        #     npx playwright test
+          # npx playwright test
 
 
         # - name: Notify Telegram
