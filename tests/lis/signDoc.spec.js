@@ -27,5 +27,22 @@ test(`Подписание направления`, async ({ page }) => {
   await page.locator(`#LisFooterBtn_approveDocument`).click()
   await page.locator(`#LisFooterBtn_openSubActions`).click()
   await page.locator(`#LisFooterBtn_signDocument`).click()
-  // await expect(page.locator(`.el-message--error`)).toHaveText(`Невозможно подписать, результаты не одобрены`)
+})
+
+test(`Подписать конкретное направление`, async ({ page }) => {
+  await authAdmin(page)
+  await openModule(page)
+
+  await page.locator(`#LisFooterBtn_openSubActions`).click()
+  await page.locator(`#LisFooterBtn_openReferrals`).click()
+  await page.getByRole(`listitem`).filter({ hasText: `Дата назначения -` }).getByRole(`textbox`).nth(1).click()
+  await page.getByRole(`row`, { name: `27 28 1 2 3 4 5` }).getByText(`1`).click()
+  await page.getByRole(`row`, { name: `27 28 1 2 3 4 5` }).getByText(`1`).click()
+  await page.getByText(`Не подписанные`).click()
+  await page.getByText(`ПАСТУШКОВА`).first().dblclick()
+
+  // одобрить и подписать
+  await page.locator(`#LisFooterBtn_approveDocument`).last().click()
+  await page.locator(`#LisFooterBtn_openSubActions`).last().click()
+  await page.locator(`#LisFooterBtn_signDocument`).last().click()
 })
