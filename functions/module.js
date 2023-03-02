@@ -1,6 +1,16 @@
 export async function openModule(page, module, speciality) {
-  await page.getByText(module).click()
+  if (module) {
+    await page.getByText(module).click()
+  } else {
+    await page.locator(`.select-main tr`).first().click()
+  }
+  
   await page.getByPlaceholder(`Выбрать специальность`).click()
-  await page.getByText(speciality).click()
+  if (speciality) {
+    await page.getByText(speciality).click()
+  } else {
+    await page.getByRole(`listitem`).first().click()
+  }
+  
   await page.getByText(`Запустить`).click()
 }
