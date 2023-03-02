@@ -48,9 +48,9 @@ export default defineConfig({
       name: `chromium`,
       //use: { ...devices[`Desktop Chrome`] },
       // name: 'Google Chrome',
-       use: {
-         channel: 'chrome',
-       },
+      use: {
+        channel: 'chrome',
+      },
     },
     
     // {
