@@ -1,5 +1,5 @@
 // @ts-check
-const { defineConfig, devices } = require(`@playwright/test`);
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Read environment variables from file.
@@ -10,7 +10,7 @@ const { defineConfig, devices } = require(`@playwright/test`);
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   testDir: `./tests`,
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
@@ -46,9 +46,13 @@ module.exports = defineConfig({
   projects: [
     {
       name: `chromium`,
-      use: { ...devices[`Desktop Chrome`] },
+      //use: { ...devices[`Desktop Chrome`] },
+      // name: 'Google Chrome',
+      use: {
+        channel: 'chrome',
+      },
     },
-
+    
     // {
     //   name: `firefox`,
     //   use: { ...devices[`Desktop Firefox`] },

@@ -7,7 +7,7 @@
     "test:core": "playwright test tests/core",
     "test-headed:core": "playwright test tests/core --headed",
     "test:lis": "playwright test tests/lis",
-    "test-headed:lis": "playwright test tests/lis --headed"   
+    "test-headed:lis": "playwright test tests/lis --headed"
   },
   "repository": {
     "type": "git",
