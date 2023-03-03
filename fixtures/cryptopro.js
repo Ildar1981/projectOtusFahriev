@@ -6,6 +6,7 @@ export const test = base.extend({
     const pathToExtension = path.join(__dirname, `../extensions/cryptopro`);
     const context = await chromium.launchPersistentContext(``, {
       args: [
+        `--headless=new`,
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
       ],
