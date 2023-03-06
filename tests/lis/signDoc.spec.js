@@ -37,23 +37,3 @@ test(`Подписание направления`, async ({ page }) => {
     await page.locator(`#LisFooterBtn_signDocument`).last().click()
   ])
 })
-
-test.skip(`Подписать конкретное направление`, async ({ page }) => {
-  await authAdmin(page)
-  await openModule(page)
-
-  await page.locator(`#LisFooterBtn_openSubActions`).click()
-  await page.locator(`#LisFooterBtn_openReferrals`).click()
-  await page.getByRole(`listitem`).filter({ hasText: `Дата назначения -` }).getByRole(`textbox`).nth(1).click()
-  await page.getByRole(`row`, { name: `27 28 1 2 3 4 5` }).getByText(`3`).click()
-  await page.getByRole(`row`, { name: `27 28 1 2 3 4 5` }).getByText(`3`).click()
-  await page.getByText(`Не подписанные`).click()
-  await page.getByText(`ПАСТУШКОВА`).first().dblclick()
-
-  // подписать
-  await page.locator(`#LisFooterBtn_openSubActions`).last().click()
-  await Promise.all([
-    page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201),
-    await page.locator(`#LisFooterBtn_signDocument`).last().click()
-  ])
-})
