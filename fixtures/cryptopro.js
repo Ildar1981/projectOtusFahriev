@@ -1,12 +1,21 @@
 import { test as base, chromium } from '@playwright/test'
 import path from 'path';
 
+function getArgs() {
+  const args = []
+  if (process.env.MODE == `headless`) {
+    args.push(`--headless=new`)
+  }
+  return args
+}
+
 export const test = base.extend({
   context: async ({ }, use) => {
     const pathToExtension = path.join(__dirname, `../extensions/cryptopro`);
     const context = await chromium.launchPersistentContext(``, {
+      headless: process.env.MODE == `headless`,
       args: [
-        `--headless=new`,
+        ...getArgs(),
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
       ],
