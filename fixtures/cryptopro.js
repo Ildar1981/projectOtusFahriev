@@ -1,13 +1,6 @@
 import { test as base, chromium } from '@playwright/test'
 import path from 'path';
-
-function getArgs() {
-  const args = []
-  if (process.env.MODE == `headless`) {
-    args.push(`--headless=new`)
-  }
-  return args
-}
+import { getArgs } from '../functions/mode';
 
 export const test = base.extend({
   context: async ({ }, use) => {

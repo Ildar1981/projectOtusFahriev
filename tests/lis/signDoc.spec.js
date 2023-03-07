@@ -4,6 +4,7 @@ import { authAdmin, openModule } from '../../functions'
 import { _baseURL, _loginAdmin, _passwordAdmin } from '../../const'
 
 test(`Подписание направления`, async ({ page }) => {
+  test.skip(process.env.TEST_TYPE == `smoke`)
   await authAdmin(page)
   await openModule(page)
 
