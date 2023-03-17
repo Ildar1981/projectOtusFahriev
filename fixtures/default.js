@@ -1,5 +1,5 @@
 import { test as base, chromium } from '@playwright/test'
-import { getArgs } from '../functions/mode'
+import { getArgs } from '../functions'
 
 export const test = base.extend({
   context: async ({ }, use) => {
