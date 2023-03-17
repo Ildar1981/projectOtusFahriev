@@ -31,9 +31,15 @@ test(`Подписание направления`, async ({ page }) => {
     page.waitForResponse(resp => resp.url().includes(`/approve`) && resp.status() === 200),
     await page.locator(`#LisFooterBtn_approveDocument`).click()
   ])
+  await page.locator(`#LisFooterBtn_openSubActions`).click()
+  await page.locator(`#LisFooterBtn_signDocument`).last().click()
   await Promise.race([
-    page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201),
-    await page.locator(`#LisFooterBtn_openSubActions`).click(),
-    await page.locator(`#LisFooterBtn_signDocument`).last().click()
-  ])
+    page.locator(`.description-cert`).first().click(),
+    page.locator(`.choose-cert`).click(),
+    page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201)
+  ]).then(async (res) => {
+    if (!res) {
+      await page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201)
+    }
+  })
 })
