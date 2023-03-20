@@ -1,11 +1,11 @@
 import { test } from '../../fixtures/default'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule, waitForOneOf } from '../../functions'
-import { getExistingData } from './functions'
+import { getExistingData, createReferral } from './functions'
 
 test.describe(`Проверка статусов`, async () => {
 
-  const barcode = Math.round(Math.random() * 1000000) + ``
+  const barcode = Math.round(Math.random() * 100000000) + ``
 
   test.beforeEach(async ({ page }) => {
     test.skip(process.env.TEST_TYPE == `smoke`)
@@ -17,22 +17,10 @@ test.describe(`Проверка статусов`, async () => {
 
     // получить существующие данные: имя пациента, наименование исследования
     const data = await getExistingData(page)
+    data.barcode = barcode
     
     // создать направление с полученными данными и рандомным штрих-кодом
-    await page.locator(`#LisFooterBtn_openSubActions`).click()
-    await page.locator(`#LisFooterBtn_createReferral`).click()
-    await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-    await page.getByPlaceholder(`Выбрать пациента`).fill(data.patient)
-    await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
-    await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-    await page.getByPlaceholder(`Выбрать исследование`).fill(data.analysis)
-    await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
-    await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-    await page.getByPlaceholder(`Выбрать срочность`).fill(`-`)
-    await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
-    await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-    await page.getByPlaceholder(`Введите текст`).last().fill(barcode)
-    await page.getByRole(`button`, { name: `Сохранить` }).click()
+    await createReferral(page, data)
 
     // статус направления "Новый"
     await expect(page.locator(`#LisRefDetailsTableData .reject-status`).first()).toContainText(`Новый`)
