@@ -6,7 +6,7 @@ export async function getExistingData(page) {
   await page.locator(`#LisFooterBtn_openReferrals`).click()
 
   // установить фильтр по дате
-  setDateReferral(page)
+  await setDateReferral(page)
 
   // настроить колонки таблицы
   await page.locator(`#LisReferralsTable`).getByRole(`img`).last().click()
@@ -43,12 +43,18 @@ export async function getExistingData(page) {
   return data
 }
 
-async function setDateReferral(page) {
+// устанавливает фильтр по дате создания направления
+// если передан setToday = true, то ставится сегодняшнее число,
+// иначе - последние 7 дней в рамках месяца
+export async function setDateReferral(page, setToday) {
   const today = new Date()
   let dateStart, dateEnd
 
   await page.getByRole(`listitem`).filter({ hasText: `Дата назначения -` }).getByRole(`textbox`).nth(1).click()
-  if (today.getDate() >= 7) {
+  if (setToday) {
+    dateStart = today.getDate()
+    dateEnd = today.getDate()
+  } else if (today.getDate() >= 7) {
     dateStart = today.getDate() - 6 + ``
     dateEnd = today.getDate() + ``
   } else {
@@ -60,4 +66,21 @@ async function setDateReferral(page) {
   }
   await page.getByRole(`row`, { hasText: dateStart }).getByText(dateStart).first().click()
   await page.getByRole(`row`, { hasText: dateEnd }).getByText(dateEnd).first().click()
+}
+
+export async function createReferral(page, data) {
+  await page.locator(`#LisFooterBtn_openSubActions`).click()
+  await page.locator(`#LisFooterBtn_createReferral`).click()
+  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
+  await page.getByPlaceholder(`Выбрать пациента`).fill(data.patient)
+  await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
+  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
+  await page.getByPlaceholder(`Выбрать исследование`).fill(data.analysis)
+  await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
+  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
+  await page.getByPlaceholder(`Выбрать срочность`).fill(`-`)
+  await page.locator(`.el-select-dropdown__list`).getByRole(`listitem`).first().click()
+  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
+  await page.getByPlaceholder(`Введите текст`).last().fill(data.barcode)
+  await page.getByRole(`button`, { name: `Сохранить` }).click()
 }

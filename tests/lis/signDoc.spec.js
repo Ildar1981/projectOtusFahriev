@@ -1,22 +1,18 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule } from '../../functions'
+import { createReferral, getExistingData } from './functions'
 
 test(`Подписание направления`, async ({ page }) => {
   test.skip(process.env.TEST_TYPE == `smoke`)
   await authAdmin(page)
   await openModule(page)
-
-  // создать направление
-  await page.locator(`#LisFooterBtn_openSubActions`).click()
-  await page.locator(`#LisFooterBtn_createReferral`).click()
-  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-  await page.getByPlaceholder(`Выбрать пациента`).fill(`би`)
-  await page.getByRole(`listitem`).filter({ hasText: `БИЛЕНКО ДАНИИЛ АНДРЕЕВИЧ` }).click()
-  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-  await page.getByPlaceholder(`Выбрать исследование`).fill(`ан`)
-  await page.getByRole(`listitem`).filter({ hasText: `Анализ мочи по Нечипоренко` }).click()
-  await page.getByRole(`button`, { name: `Сохранить` }).click()
+ 
+  // получить существующего пациента и группировку
+  // создать направление с полученными данными и рандомным штрих-кодом
+  const data = await getExistingData(page)
+  data.barcode = Math.round(Math.random() * 100000000) + ``
+  await createReferral(page, data)
 
   // заполнить результат
   await page.locator(`#LisRefDetailsTableRef`).getByText(`Заполнить`).first().click()
