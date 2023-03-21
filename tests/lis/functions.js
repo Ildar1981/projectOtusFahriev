@@ -1,3 +1,9 @@
+import {
+  dataTableSettings,
+  refTableSettings,
+  refsTableSettings
+} from './const'
+
 export async function getExistingData(page) {
   const data = {}
 
@@ -9,24 +15,24 @@ export async function getExistingData(page) {
   await setDateReferral(page)
 
   // настроить колонки таблицы
-  await page.locator(`#LisReferralsTable`).getByRole(`img`).last().click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_identifier').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_barcode').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_referral_date').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_created_at').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_analys_date').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_patient_birthdate').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_barcode_sample').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_urgency').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_status').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_dynamic').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_comment').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_referral_doctor').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_signed').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_approved').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_protocol_upload').click()
-  await page.getByRole('tooltip').locator('#LisPopoverChkLisReferralsTable_error').click()
-  await page.getByRole('button', { name: 'Применить' }).click()
+  await setRefsTableCols(page, [
+    `rlis_num`,
+    `barcode`,
+    `date_ref`,
+    `date_create`,
+    `date_res`,
+    `birthdate`,
+    `sample`,
+    `urgency`,
+    `status`,
+    `dynamic`,
+    `comment`,
+    `doctor`,
+    `signed`,
+    `approved`,
+    `protocol_upl`,
+    `error`
+  ])
 
   // получить данные из первой строки таблицы: штрих-код, ФИО пациента, наименование исследования
   await page.waitForSelector(`#LisReferralsTable .el-table__body tr`)
@@ -83,4 +89,44 @@ export async function createReferral(page, data) {
   await page.getByRole(`row`).getByText(`Заполнить`).first().click()
   await page.getByPlaceholder(`Введите текст`).last().fill(data.barcode)
   await page.getByRole(`button`, { name: `Сохранить` }).click()
+}
+
+export async function setDataTableCols(page, cols) {
+  await page.locator('#LisRefDetailsTableData').getByRole('img').last().click()
+  for await (let col of cols) {
+    await page.getByRole('group').locator(dataTableSettings[col]).click()
+  }
+  await page.getByRole('button', { name: 'Применить' }).click()
+}
+
+export async function setRefTableCols(page, cols) {
+  await page.locator('#LisRefDetailsTableRef').getByRole('img').click()
+  for await (let col of cols) {
+    await page.getByRole(`group`).locator(refTableSettings[col]).click()
+  }
+  await page.getByRole('button', { name: 'Применить' }).click()
+}
+
+export async function setRefsTableCols(page, cols) {
+  await page.locator('#LisReferralsTable').getByRole('img').last().click()
+  for await (let col of cols) {
+    await page.getByRole(`tooltip`).locator(refsTableSettings[col]).click()
+  }
+  await page.getByRole('button', { name: 'Применить' }).click()
+}
+
+export async function approveReferral(page, test) {
+  const approveResp = await Promise.all([
+    page.waitForResponse(resp => resp.url().includes(`/approve`)),
+    await page.locator(`#LisFooterBtn_approveDocument`).click()
+  ])
+  if (await approveResp[0].status() !== 200) {
+    const errors = []
+    const errorsJSON = await approveResp[0].json()
+    for (let err of errorsJSON.messages) {
+      errors.push(err.message)
+    }
+    const errorMessage = `Не удалось одобрить направление: ${errors.join(', ')}`
+    test.fail(true, errorMessage)
+  }
 }

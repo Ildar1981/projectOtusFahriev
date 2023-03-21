@@ -1,7 +1,7 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule } from '../../functions'
-import { createReferral, getExistingData } from './functions'
+import { createReferral, getExistingData, approveReferral } from './functions'
 
 test(`Подписание направления`, async ({ page }) => {
   test.skip(process.env.TEST_TYPE == `smoke`)
@@ -23,10 +23,7 @@ test(`Подписание направления`, async ({ page }) => {
   ])
   
   // одобрить и подписать
-  await Promise.all([
-    page.waitForResponse(resp => resp.url().includes(`/approve`) && resp.status() === 200),
-    await page.locator(`#LisFooterBtn_approveDocument`).click()
-  ])
+  await approveReferral(page, test)
   await page.locator(`#LisFooterBtn_openSubActions`).click()
   await page.locator(`#LisFooterBtn_signDocument`).last().click()
   await Promise.race([
