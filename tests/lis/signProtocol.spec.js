@@ -1,7 +1,13 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule, waitForOneOf } from '../../functions'
-import { getExistingData, createReferral, setDateReferral } from './functions'
+import {
+  getExistingData,
+  createReferral,
+  setDateReferral,
+  setTableCols,
+  approveReferral
+} from './functions'
 
 test.describe(`Подписание протокола`, async () => {
 
@@ -36,15 +42,15 @@ test.describe(`Подписание протокола`, async () => {
     await page.getByRole(`heading`, { name: `Направление:` }).click()
 
     // настроить колонки таблицы
-    await page.locator('#LisRefDetailsTableData').getByRole('img').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_referral_date').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_patient').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_birthdate').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_referral_doctor').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_research').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_barcode').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableData_status').click()
-    await page.getByRole('button', { name: 'Применить' }).click()
+    await setTableCols(page, `refDataTable`, [
+      `date_ref`,
+      `patient`,
+      `birthdate`,
+      `doctor`,
+      `research`,
+      `barcode`,
+      `status`
+    ])
 
     // проверить значение пробы
     await page.waitForSelector(`#LisRefDetailsTableData > .el-table__body-wrapper tr`)
@@ -52,20 +58,20 @@ test.describe(`Подписание протокола`, async () => {
     await expect(dataTableRow.locator(`td`).first()).toContainText(sampleText)
 
     // настроить колонки таблицы
-    await page.locator('#LisRefDetailsTableRef').getByRole('img').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_name').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_norma').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_unit').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_interpretation').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_test_status').click()
-    await page.getByRole('group').locator('#LisPopoverChkLisRefDetailsTableRef_source').click()
-    await page.getByRole('button', { name: 'Применить' }).click()
+    await setTableCols(page, `refTable`, [
+      `test`,
+      `norma`,
+      `unit`,
+      `interpretation`,
+      `status`,
+      `source`
+    ])
 
     // ввести результаты первых 10 тестов (если меньше 10, то все)
     await page.waitForSelector(`#LisRefDetailsTableRef > .el-table__body-wrapper tr`)
     const rows = await page.locator(`#LisRefDetailsTableRef > .el-table__body-wrapper tr`)
     const rowsCount = await rows.count()
-    for (let i = 0; i < (rowsCount >= 10 ? 9 : rowsCount - 1); i++) {
+    for (let i = 0; i < (rowsCount >= 10 ? 10 : rowsCount); i++) {
       await rows.nth(i).locator(`td`).first().click()
       const field = await waitForOneOf([
         page.locator(`.editable-default-field`).first(),
@@ -90,10 +96,7 @@ test.describe(`Подписание протокола`, async () => {
     }
 
     // одобрить направление
-    await Promise.all([
-      page.waitForResponse(resp => resp.url().includes(`/approve`) && resp.status() === 200),
-      await page.locator(`#LisFooterBtn_approveDocument`).click()
-    ])
+    await approveReferral(page, test)
   })
 
   test(`Подписать несколько направлений вместе с созданным`, async ({ page }) => {
@@ -112,26 +115,26 @@ test.describe(`Подписание протокола`, async () => {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(today, { exact: true }).click()
 
     // настроить колонки таблицы
-    await page.locator('#LisReferralsTable').getByRole('img').last().click();
-    await page.getByRole(`tooltip`).locator(`#LisPopoverChkLisReferralsTable_identifier`).click();
-    await page.getByRole(`tooltip`).locator(`#LisPopoverChkLisReferralsTable_barcode`).click();
-    await page.getByRole(`tooltip`).locator(`#LisPopoverChkLisReferralsTable_referral_date`).click();
-    await page.getByRole(`tooltip`).locator(`#LisPopoverChkLisReferralsTable_created_at`).click();
-    await page.getByRole(`tooltip`).locator(`#LisPopoverChkLisReferralsTable_analys_date`).click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_patient').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_patient_birthdate').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_name').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_barcode_sample').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_urgency').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_status').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_dynamic').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_comment').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_referral_doctor').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_signed').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_approved').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_protocol_upload').click();
-    await page.getByRole(`tooltip`).locator('#LisPopoverChkLisReferralsTable_error').click();
-    await page.getByRole('button', { name: 'Применить' }).click();
+    await setTableCols(page, `refsTable`, [
+      `rlis_num`,
+      `barcode`,
+      `date_ref`,
+      `date_create`,
+      `date_res`,
+      `patient`,
+      `birthdate`,
+      `analysis`,
+      `sample`,
+      `urgency`,
+      `status`,
+      `dynamic`,
+      `comment`,
+      `doctor`,
+      `signed`,
+      `approved`,
+      `protocol_upl`,
+      `error`
+    ])
 
     // проверить наличие направления в выборке
     await page.waitForSelector(`#LisReferralsTable > .el-table__body-wrapper tr`)
@@ -141,11 +144,7 @@ test.describe(`Подписание протокола`, async () => {
         break
       }
       if (i === await rows.count() - 1) {
-        test.info().annotations.push({
-          type: 'error',
-          description: 'Среди первых 50 результатов выборки нет созданного направления'
-        });
-        test.fail()
+        test.fail(true, 'Среди первых 50 результатов выборки нет созданного направления')
       }
     }
 
@@ -175,11 +174,7 @@ test.describe(`Подписание протокола`, async () => {
         break
       }
       if (i === await signedRows.count() - 1) {
-        test.info().annotations.push({
-          type: 'error',
-          description: 'Среди первых 50 результатов выборки "Подписанные" нет созданного направления'
-        });
-        test.fail()
+        test.fail(true, 'Среди первых 50 результатов выборки "Подписанные" нет созданного направления')
       }
     }
   })
