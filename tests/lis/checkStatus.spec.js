@@ -4,7 +4,7 @@ import { authAdmin, openModule, waitForOneOf } from '../../functions'
 import {
   getExistingData,
   createReferral,
-  setRefTableCols,
+  setTableCols,
   approveReferral
 } from './functions'
 
@@ -41,7 +41,7 @@ test.describe(`Проверка статусов`, async () => {
     await expect(page.locator(`#LisRefDetailsTableData .reject-status`).first()).toContainText(`Новый`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `result`,
       `norma`,
@@ -67,7 +67,7 @@ test.describe(`Проверка статусов`, async () => {
     await page.locator(`#LisReferralSearch`).press(`Enter`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `norma`,
       `unit`,
@@ -102,7 +102,7 @@ test.describe(`Проверка статусов`, async () => {
     await expect(page.locator(`#LisRefDetailsTableData .reject-status`).first()).toContainText(`Новый`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `result`,
       `norma`,
@@ -127,7 +127,7 @@ test.describe(`Проверка статусов`, async () => {
     await page.locator(`#LisReferralSearch`).press(`Enter`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `norma`,
       `unit`,
@@ -177,7 +177,7 @@ test.describe(`Проверка статусов`, async () => {
     await expect(page.locator(`#LisRefDetailsTableData .reject-status`).first()).toContainText(`В работе`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `result`,
       `norma`,
@@ -202,7 +202,7 @@ test.describe(`Проверка статусов`, async () => {
     await page.locator(`#LisReferralSearch`).press(`Enter`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `norma`,
       `unit`,
@@ -235,7 +235,7 @@ test.describe(`Проверка статусов`, async () => {
     await expect(page.locator(`#LisRefDetailsTableData .reject-status`).first()).toContainText(`Выполнено`)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `result`,
       `norma`,

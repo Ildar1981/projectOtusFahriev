@@ -1,7 +1,5 @@
 import {
-  dataTableSettings,
-  refTableSettings,
-  refsTableSettings
+  tables
 } from './const'
 
 export async function getExistingData(page) {
@@ -15,7 +13,7 @@ export async function getExistingData(page) {
   await setDateReferral(page)
 
   // настроить колонки таблицы
-  await setRefsTableCols(page, [
+  await setTableCols(page, `refsTable`, [
     `rlis_num`,
     `barcode`,
     `date_ref`,
@@ -91,26 +89,11 @@ export async function createReferral(page, data) {
   await page.getByRole(`button`, { name: `Сохранить` }).click()
 }
 
-export async function setDataTableCols(page, cols) {
-  await page.locator('#LisRefDetailsTableData').getByRole('img').last().click()
+export async function setTableCols(page, table, cols) {
+  const tableData = tables[table]
+  await page.locator(tableData.id).getByRole(`img`).last().click()
   for await (let col of cols) {
-    await page.getByRole('group').locator(dataTableSettings[col]).click()
-  }
-  await page.getByRole('button', { name: 'Применить' }).click()
-}
-
-export async function setRefTableCols(page, cols) {
-  await page.locator('#LisRefDetailsTableRef').getByRole('img').click()
-  for await (let col of cols) {
-    await page.getByRole(`group`).locator(refTableSettings[col]).click()
-  }
-  await page.getByRole('button', { name: 'Применить' }).click()
-}
-
-export async function setRefsTableCols(page, cols) {
-  await page.locator('#LisReferralsTable').getByRole('img').last().click()
-  for await (let col of cols) {
-    await page.getByRole(`tooltip`).locator(refsTableSettings[col]).click()
+    await page.getByRole(table === `refsTable` ? `tooltip` : `group`).locator(tableData.cols[col]).click()
   }
   await page.getByRole('button', { name: 'Применить' }).click()
 }

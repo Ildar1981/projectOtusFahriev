@@ -5,9 +5,7 @@ import {
   getExistingData,
   createReferral,
   setDateReferral,
-  setRefTableCols,
-  setRefsTableCols,
-  setDataTableCols,
+  setTableCols,
   approveReferral
 } from './functions'
 
@@ -44,7 +42,7 @@ test.describe(`Подписание протокола`, async () => {
     await page.getByRole(`heading`, { name: `Направление:` }).click()
 
     // настроить колонки таблицы
-    await setDataTableCols(page, [
+    await setTableCols(page, `refDataTable`, [
       `date_ref`,
       `patient`,
       `birthdate`,
@@ -60,7 +58,7 @@ test.describe(`Подписание протокола`, async () => {
     await expect(dataTableRow.locator(`td`).first()).toContainText(sampleText)
 
     // настроить колонки таблицы
-    await setRefTableCols(page, [
+    await setTableCols(page, `refTable`, [
       `test`,
       `norma`,
       `unit`,
@@ -117,7 +115,7 @@ test.describe(`Подписание протокола`, async () => {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(today, { exact: true }).click()
 
     // настроить колонки таблицы
-    await setRefsTableCols(page, [
+    await setTableCols(page, `refsTable`, [
       `rlis_num`,
       `barcode`,
       `date_ref`,

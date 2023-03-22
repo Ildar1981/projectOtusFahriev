@@ -1,5 +1,5 @@
 // опции настройки таблицы Данные направления
-export const dataTableSettings = {
+const dataTableSettings = {
   date_ref: `#LisPopoverChkLisRefDetailsTableData_referral_date`,
   patient: `#LisPopoverChkLisRefDetailsTableData_patient`,
   sex: `#LisPopoverChkLisRefDetailsTableData_sex`,
@@ -15,7 +15,7 @@ export const dataTableSettings = {
 }
 
 // опции настройки таблицы Направление (список тестов)
-export const refTableSettings = {
+const refTableSettings = {
   test: `#LisPopoverChkLisRefDetailsTableRef_name`,
   result: `#LisPopoverChkLisRefDetailsTableRef_result`,
   comment: `#LisPopoverChkLisRefDetailsTableRef_comment`,
@@ -27,7 +27,7 @@ export const refTableSettings = {
 }
 
 // опции настройки таблицы Список направлений
-export const refsTableSettings = {
+const refsTableSettings = {
   rlis_num: `#LisPopoverChkLisReferralsTable_identifier`,
   barcode: `#LisPopoverChkLisReferralsTable_barcode`,
   date_ref: `#LisPopoverChkLisReferralsTable_referral_date`,
@@ -49,4 +49,19 @@ export const refsTableSettings = {
   approved: `#LisPopoverChkLisReferralsTable_approved`,
   protocol_upl: `#LisPopoverChkLisReferralsTable_protocol_upload`,
   error: `#LisPopoverChkLisReferralsTable_error`,
+}
+
+export const tables = {
+  refDataTable: {
+    id: `#LisRefDetailsTableData`,
+    cols: dataTableSettings,
+  },
+  refTable: {
+    id: `#LisRefDetailsTableRef`,
+    cols: refTableSettings,
+  },
+  refsTable: {
+    id: `#LisReferralsTable`,
+    cols: refsTableSettings,
+  },
 }
