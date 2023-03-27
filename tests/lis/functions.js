@@ -10,7 +10,7 @@ export async function getExistingData(page) {
   await page.locator(`#LisFooterBtn_openReferrals`).click()
 
   // установить фильтр по дате
-  await setDateReferral(page)
+  await setDateOnPicker(page, `dateReferral`)
 
   // настроить колонки таблицы
   await setTableCols(page, `refsTable`, [
@@ -47,14 +47,19 @@ export async function getExistingData(page) {
   return data
 }
 
-// устанавливает фильтр по дате создания направления
+// устанавливает фильтр по дате создания/результата направления
 // если передан setToday = true, то ставится сегодняшнее число,
 // иначе - последние 7 дней в рамках месяца
-export async function setDateReferral(page, setToday) {
+export async function setDateOnPicker(page, picker, setToday) {
   const today = new Date()
   let dateStart, dateEnd
+  
+  if (picker === `dateReferral`) {
+    await page.getByRole(`listitem`).filter({ hasText: `Дата назначения` }).getByRole(`textbox`).nth(1).click()
+  } else if (picker === `dateResult`) {
+    await page.getByRole(`listitem`).filter({ hasText: `Дата результата` }).getByRole(`textbox`).nth(1).click()
+  }
 
-  await page.getByRole(`listitem`).filter({ hasText: `Дата назначения -` }).getByRole(`textbox`).nth(1).click()
   if (setToday) {
     dateStart = today.getDate()
     dateEnd = today.getDate()
@@ -68,8 +73,17 @@ export async function setDateReferral(page, setToday) {
     dateStart = lastDayOfPreviousMonth - 6 + ``
     dateEnd = lastDayOfPreviousMonth + ``
   }
-  await page.getByRole(`row`, { hasText: dateStart }).getByText(dateStart).first().click()
-  await page.getByRole(`row`, { hasText: dateEnd }).getByText(dateEnd).first().click()
+
+  if (dateStart < 7) {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).first().click()
+  } else {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).last().click()
+  }
+  if (dateEnd < 7) {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).first().click()
+  } else {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).last().click()
+  }
 }
 
 export async function createReferral(page, data) {

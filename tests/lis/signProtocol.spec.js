@@ -4,7 +4,7 @@ import { authAdmin, openModule, waitForOneOf } from '../../functions'
 import {
   getExistingData,
   createReferral,
-  setDateReferral,
+  setDateOnPicker,
   setTableCols,
   approveReferral
 } from './functions'
@@ -106,13 +106,10 @@ test.describe(`Подписание протокола`, async () => {
     await page.locator(`#LisFooterBtn_openReferrals`).click()
 
     // установить дату создания направления
-    await setDateReferral(page, true)
+    await setDateOnPicker(page, `dateReferral`, true)
 
     // установить дату результата
-    const today = new Date().getDate()
-    await page.getByRole(`listitem`).filter({ hasText: `Дата результата` }).getByRole(`textbox`).nth(1).click()
-    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(today, { exact: true }).click()
-    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(today, { exact: true }).click()
+    await setDateOnPicker(page, `dateResult`, true)
 
     // настроить колонки таблицы
     await setTableCols(page, `refsTable`, [
