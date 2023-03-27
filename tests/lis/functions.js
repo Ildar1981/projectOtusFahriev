@@ -1,6 +1,7 @@
 import {
   tables
 } from './const'
+import { waitForOneOf } from '../../functions'
 
 export async function getExistingData(page) {
   const data = {}
@@ -125,5 +126,27 @@ export async function approveReferral(page, test) {
     }
     const errorMessage = `Не удалось одобрить направление: ${errors.join(', ')}`
     test.fail(true, errorMessage)
+  }
+}
+
+export async function fillResult(page) {
+  const field = await waitForOneOf([
+    page.locator(`.editable-default-field`).first(),
+    page.locator(`.editable-select-field`),
+    page.locator(`.editable-minmax-field`).first()
+  ])
+  if (field[0] === 0) {
+    // обычный инпут
+    await field[1].locator(`input`).fill(`1`)
+    await field[1].locator(`input`).press(`Enter`)
+  } else if (field[0] === 1) {
+    // выпадающий список
+    await page.locator(`.el-select-dropdown`).last().getByRole(`listitem`).first().click()
+  } else if (field[0] === 2) {
+    // интервал (два инпута)
+    await page.locator(`#LisFieldInputMin`).first().fill(`1`)
+    await page.locator(`#LisFieldInputMin`).first().press(`Enter`)
+    await page.locator(`#LisFieldInputMax`).first().fill(`2`)
+    await page.locator(`#LisFieldInputMax`).first().press(`Enter`)
   }
 }

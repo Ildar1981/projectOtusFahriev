@@ -6,7 +6,8 @@ import {
   createReferral,
   setDateOnPicker,
   setTableCols,
-  approveReferral
+  approveReferral,
+  fillResult
 } from './functions'
 
 test.describe(`Подписание протокола`, async () => {
@@ -73,25 +74,7 @@ test.describe(`Подписание протокола`, async () => {
     const rowsCount = await rows.count()
     for (let i = 0; i < (rowsCount >= 10 ? 10 : rowsCount); i++) {
       await rows.nth(i).locator(`td`).first().click()
-      const field = await waitForOneOf([
-        page.locator(`.editable-default-field`).first(),
-        page.locator(`.editable-select-field`),
-        page.locator(`.editable-minmax-field`).first()
-      ])
-      if (field[0] === 0) {
-        // обычный инпут
-        await field[1].locator(`input`).fill(`1`)
-        await field[1].locator(`input`).press(`Enter`)
-      } else if (field[0] === 1) {
-        // выпадающий список
-        await page.locator(`.el-select-dropdown`).last().getByRole(`listitem`).first().click()
-      } else if (field[0] === 2) {
-        // интервал (два инпута)
-        await page.locator(`#LisFieldInputMin`).first().fill(`1`)
-        await page.locator(`#LisFieldInputMin`).first().press(`Enter`)
-        await page.locator(`#LisFieldInputMax`).first().fill(`2`)
-        await page.locator(`#LisFieldInputMax`).first().press(`Enter`)
-      }
+      await fillResult(page)
       await page.waitForResponse(resp => resp.url().includes(`/api/v1/referral-test`) && resp.status() === 200)
     }
 

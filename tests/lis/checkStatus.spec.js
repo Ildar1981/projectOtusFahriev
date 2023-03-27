@@ -1,11 +1,12 @@
 import { test } from '../../fixtures/default'
 import { expect } from '@playwright/test'
-import { authAdmin, openModule, waitForOneOf } from '../../functions'
+import { authAdmin, openModule } from '../../functions'
 import {
   getExistingData,
   createReferral,
   setTableCols,
-  approveReferral
+  approveReferral,
+  fillResult
 } from './functions'
 
 test.describe(`Проверка статусов`, async () => {
@@ -137,22 +138,7 @@ test.describe(`Проверка статусов`, async () => {
 
     // нажать на результат первого теста, ввести результат и снять фокус
     await page.locator(`#LisRefDetailsTableRef > .el-table__body-wrapper tr`).getByText('Заполнить').first().click()
-    const field = await waitForOneOf([
-      page.locator(`.editable-default-field`).first(),
-      page.locator(`.editable-select-field`),
-      page.locator(`.editable-minmax-field`).first()
-    ])
-    if (field[0] === 0) {
-      await field[1].locator(`input`).fill(`1`)
-      await page.getByRole(`heading`, { name: `Направление:` }).click()
-    } else if (field[0] === 1) {
-      await page.locator(`.el-select-dropdown`).last().getByRole(`listitem`).first().click()
-    } else if (field[0] === 2) {
-      await page.locator(`#LisFieldInputMin`).first().fill(`1`)
-      await page.locator(`#LisFieldInputMin`).first().press(`Enter`)
-      await page.locator(`#LisFieldInputMax`).first().fill(`2`)
-      await page.locator(`.el-select-dropdown`).last().getByRole(`listitem`).first().click()
-    }
+    await fillResult(page)
     await page.waitForResponse(resp => resp.url().includes(`/api/v1/referral-test`) && resp.status() === 200)
 
     // статус направления "В работе"
