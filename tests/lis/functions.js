@@ -1,6 +1,7 @@
 import {
   tables
 } from './const'
+import { waitForOneOf } from '../../functions'
 
 export async function getExistingData(page) {
   const data = {}
@@ -10,7 +11,7 @@ export async function getExistingData(page) {
   await page.locator(`#LisFooterBtn_openReferrals`).click()
 
   // установить фильтр по дате
-  await setDateReferral(page)
+  await setDateOnPicker(page, `dateReferral`)
 
   // настроить колонки таблицы
   await setTableCols(page, `refsTable`, [
@@ -47,14 +48,19 @@ export async function getExistingData(page) {
   return data
 }
 
-// устанавливает фильтр по дате создания направления
+// устанавливает фильтр по дате создания/результата направления
 // если передан setToday = true, то ставится сегодняшнее число,
 // иначе - последние 7 дней в рамках месяца
-export async function setDateReferral(page, setToday) {
+export async function setDateOnPicker(page, picker, setToday) {
   const today = new Date()
   let dateStart, dateEnd
+  
+  if (picker === `dateReferral`) {
+    await page.getByRole(`listitem`).filter({ hasText: `Дата назначения` }).getByRole(`textbox`).nth(1).click()
+  } else if (picker === `dateResult`) {
+    await page.getByRole(`listitem`).filter({ hasText: `Дата результата` }).getByRole(`textbox`).nth(1).click()
+  }
 
-  await page.getByRole(`listitem`).filter({ hasText: `Дата назначения -` }).getByRole(`textbox`).nth(1).click()
   if (setToday) {
     dateStart = today.getDate()
     dateEnd = today.getDate()
@@ -68,8 +74,17 @@ export async function setDateReferral(page, setToday) {
     dateStart = lastDayOfPreviousMonth - 6 + ``
     dateEnd = lastDayOfPreviousMonth + ``
   }
-  await page.getByRole(`row`, { hasText: dateStart }).getByText(dateStart).first().click()
-  await page.getByRole(`row`, { hasText: dateEnd }).getByText(dateEnd).first().click()
+
+  if (dateStart < 7) {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).first().click()
+  } else {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).last().click()
+  }
+  if (dateEnd < 7) {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).first().click()
+  } else {
+    await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).last().click()
+  }
 }
 
 export async function createReferral(page, data) {
@@ -111,5 +126,27 @@ export async function approveReferral(page, test) {
     }
     const errorMessage = `Не удалось одобрить направление: ${errors.join(', ')}`
     test.fail(true, errorMessage)
+  }
+}
+
+export async function fillResult(page) {
+  const field = await waitForOneOf([
+    page.locator(`.editable-default-field`).first(),
+    page.locator(`.editable-select-field`),
+    page.locator(`.editable-minmax-field`).first()
+  ])
+  if (field[0] === 0) {
+    // обычный инпут
+    await field[1].locator(`input`).fill(`1`)
+    await field[1].locator(`input`).press(`Enter`)
+  } else if (field[0] === 1) {
+    // выпадающий список
+    await page.locator(`.el-select-dropdown`).last().getByRole(`listitem`).first().click()
+  } else if (field[0] === 2) {
+    // интервал (два инпута)
+    await page.locator(`#LisFieldInputMin`).first().fill(`1`)
+    await page.locator(`#LisFieldInputMin`).first().press(`Enter`)
+    await page.locator(`#LisFieldInputMax`).first().fill(`2`)
+    await page.locator(`#LisFieldInputMax`).first().press(`Enter`)
   }
 }

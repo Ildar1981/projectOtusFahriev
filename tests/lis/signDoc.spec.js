@@ -1,7 +1,7 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule } from '../../functions'
-import { createReferral, getExistingData, approveReferral } from './functions'
+import { createReferral, getExistingData, approveReferral, fillResult } from './functions'
 
 test(`Подписание направления`, async ({ page }) => {
   test.skip(process.env.TEST_TYPE == `smoke`)
@@ -16,7 +16,7 @@ test(`Подписание направления`, async ({ page }) => {
 
   // заполнить результат
   await page.locator(`#LisRefDetailsTableRef`).getByText(`Заполнить`).first().click()
-  await page.getByRole(`textbox`, { name: `Введите число` }).fill(`1`)
+  await fillResult(page)
   await Promise.all([
     page.waitForResponse(resp => resp.url().includes(`/api/v1/referral-test`) && resp.status() === 200),
     await page.locator(`.tab-body`).click()
