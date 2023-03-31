@@ -1,40 +1,38 @@
 import { test } from '../../fixtures/cryptopro'
 import { expect } from '@playwright/test'
 import { authAdmin, openModule } from '../../functions'
-import { _baseURL, _loginAdmin, _passwordAdmin } from '../../const'
+import { createReferral, getExistingData, approveReferral, fillResult } from './functions'
 
 test(`Подписание направления`, async ({ page }) => {
   test.skip(process.env.TEST_TYPE == `smoke`)
   await authAdmin(page)
   await openModule(page)
-
-  // создать направление
-  await page.locator(`#LisFooterBtn_openSubActions`).click()
-  await page.locator(`#LisFooterBtn_createReferral`).click()
-  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-  await page.getByPlaceholder(`Выбрать пациента`).fill(`би`);
-  await page.getByRole(`listitem`).filter({ hasText: `БИЛЕНКО ДАНИИЛ АНДРЕЕВИЧ` }).click()
-  await page.getByRole(`row`).getByText(`Заполнить`).first().click()
-  await page.getByPlaceholder(`Выбрать исследование`).fill(`ан`);
-  await page.getByRole(`listitem`).filter({ hasText: `Анализ мочи по Нечипоренко` }).click()
-  await page.getByRole(`button`, { name: `Сохранить` }).click()
+ 
+  // получить существующего пациента и группировку
+  // создать направление с полученными данными и рандомным штрих-кодом
+  const data = await getExistingData(page)
+  data.barcode = Math.round(Math.random() * 100000000) + ``
+  await createReferral(page, data)
 
   // заполнить результат
   await page.locator(`#LisRefDetailsTableRef`).getByText(`Заполнить`).first().click()
-  await page.getByRole(`textbox`, { name: `Введите число` }).fill(`1`)
+  await fillResult(page)
   await Promise.all([
     page.waitForResponse(resp => resp.url().includes(`/api/v1/referral-test`) && resp.status() === 200),
     await page.locator(`.tab-body`).click()
   ])
   
   // одобрить и подписать
-  await Promise.all([
-    page.waitForResponse(resp => resp.url().includes(`/approve`) && resp.status() === 200),
-    await page.locator(`#LisFooterBtn_approveDocument`).click()
-  ])
-  await Promise.all([
-    page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201),
-    await page.locator(`#LisFooterBtn_openSubActions`).click(),
-    await page.locator(`#LisFooterBtn_signDocument`).last().click()
-  ])
+  await approveReferral(page, test)
+  await page.locator(`#LisFooterBtn_openSubActions`).click()
+  await page.locator(`#LisFooterBtn_signDocument`).last().click()
+  await Promise.race([
+    page.locator(`.description-cert`).first().click(),
+    page.locator(`.choose-cert`).click(),
+    page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201)
+  ]).then(async (res) => {
+    if (!res) {
+      await page.waitForResponse(resp => resp.url().includes(`/api/v1/signature/document-list`) && resp.status() === 201)
+    }
+  })
 })
