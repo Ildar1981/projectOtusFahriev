@@ -6,7 +6,7 @@ import { createReferral, getExistingData, approveReferral, fillResult } from './
 test(`Подписание направления`, async ({ page }) => {
   test.skip(process.env.TEST_TYPE == `smoke`)
   await authAdmin(page)
-  await openModule(page)
+  await openModule(page, `Лаборатория`)
  
   // получить существующего пациента и группировку
   // создать направление с полученными данными и рандомным штрих-кодом
