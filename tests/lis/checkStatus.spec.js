@@ -16,7 +16,7 @@ test.describe(`Проверка статусов`, async () => {
   test.beforeEach(async ({ page }) => {
     test.skip(process.env.TEST_TYPE == `smoke`)
     await authAdmin(page)
-    await openModule(page)
+    await openModule(page, `Лаборатория`)
   })
 
   test(`Создать направление. Статус направления "Новый", статусы всех тестов "Новый"`, async ({ page }) => {

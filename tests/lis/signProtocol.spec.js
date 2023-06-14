@@ -17,7 +17,7 @@ test.describe(`Подписание протокола`, async () => {
   test.beforeEach(async ({ page }) => {
     test.skip(process.env.TEST_TYPE == `smoke`)
     await authAdmin(page)
-    await openModule(page)
+    await openModule(page, `Лаборатория`)
   })
 
   test(`Создать направление`, async ({ page }) => {

@@ -75,12 +75,12 @@ export async function setDateOnPicker(page, picker, setToday) {
     dateEnd = lastDayOfPreviousMonth + ``
   }
 
-  if (dateStart < 7) {
+  if (dateStart < 14) {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).first().click()
   } else {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateStart, { exact: true }).last().click()
   }
-  if (dateEnd < 7) {
+  if (dateEnd < 14) {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).first().click()
   } else {
     await page.locator(`.el-picker-panel`).last().locator(`.is-left tr`).getByText(dateEnd, { exact: true }).last().click()
