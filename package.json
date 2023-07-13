@@ -17,7 +17,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.30.0",
+    "@playwright/test": "^1.36.0",
     "eslint": "^8.34.0",
     "eslint-plugin-playwright": "^0.12.0"
   },
