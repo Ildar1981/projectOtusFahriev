@@ -1,0 +1,1 @@
+export const _barcode = process.env.BASE_URL ?? `1223334444`

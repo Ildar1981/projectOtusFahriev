@@ -2,6 +2,7 @@ import {
   tables
 } from './const'
 import { waitForOneOf } from '../../functions'
+import { _barcode } from '../../const'
 
 export async function getExistingData(page) {
   const data = {}
@@ -149,4 +150,11 @@ export async function fillResult(page) {
     await page.locator(`#LisFieldInputMax`).first().fill(`2`)
     await page.locator(`#LisFieldInputMax`).first().press(`Enter`)
   }
+}
+
+export async function openTestNapr(page){
+	await page.locator(`#LisReferralSearch`).fill(_barcode)
+    await page.locator(`#LisReferralSearch`).press(`Enter`)
+	await page.waitForTimeout(1000)
+	await page.waitForSelector(`text=Направление: Общий (клинический) анализ крови`)
 }
