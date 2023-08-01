@@ -158,3 +158,4 @@ export async function openTestNapr(page){
 	await page.waitForTimeout(1000)
 	await page.waitForSelector(`text=Направление: Общий (клинический) анализ крови`)
 }
+
